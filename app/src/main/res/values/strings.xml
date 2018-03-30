@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">ParkingMaster</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="rationale_title">Permission required</string>
+    <string name="rationale_message">we need permission for find your <b>location</b></string>
+</resources>
