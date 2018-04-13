@@ -26,7 +26,7 @@
                     android:id="@+id/parkDetailTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="제주대학교"
+                    android:text="----"
                     android:textStyle="bold" />
 
                 <TextView
@@ -34,14 +34,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/parkDetailTitle"
-                    android:text="유료 : 기본 30분 500원, 초과 15분 300원" />
+                    android:text="----" />
 
                 <TextView
                     android:id="@+id/parkDetailTotal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/parkDetailFee"
-                    android:text="주차면수 : 110대" />
+                    android:text="----" />
 
                 <TextView
                     android:id="@+id/parkDetailUse"

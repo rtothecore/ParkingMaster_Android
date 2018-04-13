@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="id" name="d_pks_title" />
+    <item type="id" name="d_pie_chart" />
+    <item type="id" name="d_pks_total" />
+    <item type="id" name="d_pks_used" />
+    <item type="id" name="d_pks_dummy1" />
+    <item type="id" name="d_pks_dummy2" />
+    <item type="id" name="d_pks_dummy3" />
+    <item type="id" name="d_pks_dummy4" />
+</resources>

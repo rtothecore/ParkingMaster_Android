@@ -1,7 +1,9 @@
 <resources>
     <string name="app_name">ParkingMaster</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">설정</string>
     <string name="title_activity_maps">Map</string>
     <string name="rationale_title">Permission required</string>
     <string name="rationale_message">we need permission for find your <b>location</b></string>
+    <string name="edittext_search_video">검색할 동이름을 입력하세요</string>
+    <string name="search_title">search_title</string>
 </resources>

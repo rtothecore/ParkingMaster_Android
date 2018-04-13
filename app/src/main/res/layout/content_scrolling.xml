@@ -14,37 +14,37 @@
         android:layout_height="fill_parent">
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="0.75">
+            android:layout_weight="0.75"
+            android:orientation="horizontal">
 
             <LinearLayout
-                android:orientation="horizontal"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:orientation="horizontal">
 
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_margin="5dp"
-                    android:padding="5dp"
-                    android:background="#da532c">
+                    android:background="#da532c"
+                    android:padding="5dp">
 
                     <TextView
                         android:id="@+id/wt_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="날씨정보 : 맑음"
-                        android:textStyle="bold"/>
+                        android:text="날씨정보 : --"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/wt_loc"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Jeju city"
-                        android:layout_below="@id/wt_title"/>
+                        android:layout_below="@id/wt_title"
+                        android:text="----" />
 
                     <ImageView
                         android:id="@+id/wt_pic"
@@ -59,254 +59,84 @@
                         android:layout_height="wrap_content"
                         android:layout_below="@id/wt_loc"
                         android:layout_toRightOf="@id/wt_pic"
-                        android:text="10℃" />
+                        android:text="--℃" />
 
                     <TextView
                         android:id="@+id/wt_ac"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/wt_pic"
-                        android:text="기상청 발표 - 08:00시 기준" />
+                        android:text="----" />
                 </RelativeLayout>
 
             </LinearLayout>
 
             <LinearLayout
-                android:orientation="horizontal"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:orientation="horizontal">
 
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_margin="5dp"
-                    android:padding="5dp"
-                    android:background="#d2cb3e">
+                    android:background="#d2cb3e"
+                    android:padding="5dp">
 
                     <TextView
                         android:id="@+id/air_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="대기정보"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/air_loc"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/air_title"
-                        android:text="이도동" />
+                        android:text="---" />
 
                     <TextView
                         android:id="@+id/air_pm10"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/air_loc"
-                        android:text="미세먼지 : 42㎍/㎥" />
+                        android:text="미세먼지 : --㎍/㎥" />
 
                     <TextView
                         android:id="@+id/air_pm25"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/air_pm10"
-                        android:text="초미세먼지 : 24㎍/㎥" />
+                        android:text="초미세먼지 : --㎍/㎥" />
 
                     <TextView
                         android:id="@+id/air_o3"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/air_pm25"
-                        android:text="오존지수 : 0.024ppm" />
+                        android:text="오존지수 : ----ppm" />
 
-                    <TextView
-                        android:id="@+id/air_ac"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/air_o3"
-                        android:text="기상청 발표 - 08:00시 기준" />
                 </RelativeLayout>
             </LinearLayout>
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/ll_parkinglock"
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="2.5">
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.75">
 
-            <RelativeLayout
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:id="@+id/ll_parkinglock"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_margin="5dp"
-                android:padding="5dp"
-                android:background="#7c88d2">
+                android:layout_weight="2.5"
+                android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/pks_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="제주대학교"
-                    android:layout_centerHorizontal="true"
-                    android:textStyle="bold"/>
-
-                <com.github.mikephil.charting.charts.PieChart
-                    android:id="@+id/pie_chart1"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_below="@id/pks_title"/>
-
-                <TextView
-                    android:id="@+id/pks_total"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="주차면수 : 110대"
-                    android:layout_below="@id/pie_chart1"/>
-
-                <TextView
-                    android:id="@+id/pks_used"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="주차점유 : 45대"
-                    android:layout_below="@id/pks_total"/>
-
-                <TextView
-                    android:id="@+id/pks_avail"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="주차가능 : 65대"
-                    android:layout_below="@id/pks_used"/>
-
-                <TextView
-                    android:id="@+id/pks_dummy1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="dummy"
-                    android:layout_below="@id/pks_avail"/>
-
-                <TextView
-                    android:id="@+id/pks_dummy2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="dummy"
-                    android:layout_below="@id/pks_dummy1"/>
-
-                <TextView
-                    android:id="@+id/pks_dummy3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="dummy"
-                    android:layout_below="@id/pks_dummy2"/>
-
-                <TextView
-                    android:id="@+id/pks_dummy4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="dummy"
-                    android:layout_below="@id/pks_dummy3"/>
-
-            </RelativeLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="2.5">
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="5dp"
-                android:padding="5dp"
-                android:background="#00a300">
-
-                <TextView
-                    android:id="@+id/ei_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:text="행사정보"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/ei_title_desc1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/ei_title"
-                    android:text="행사정보1" />
-
-                <TextView
-                    android:id="@+id/ei_loc1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignBaseline="@id/ei_title_desc1"
-                    android:text="행사위치1" />
-
-                <TextView
-                    android:id="@+id/ei_title_desc2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/ei_title_desc1"
-                    android:text="행사정보2" />
-
-                <TextView
-                    android:id="@+id/ei_loc2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignBaseline="@id/ei_title_desc2"
-                    android:text="행사위치2" />
-
-                <TextView
-                    android:id="@+id/ei_title_desc3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/ei_title_desc2"
-                    android:text="행사정보3" />
-
-                <TextView
-                    android:id="@+id/ei_loc3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignBaseline="@id/ei_title_desc3"
-                    android:text="행사위치3" />
-
-                <TextView
-                    android:id="@+id/ei_title_desc4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/ei_title_desc3"
-                    android:text="행사정보4" />
-
-                <TextView
-                    android:id="@+id/ei_loc4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignBaseline="@id/ei_title_desc4"
-                    android:text="행사위치4" />
-
-                <TextView
-                    android:id="@+id/ei_title_desc5"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/ei_title_desc4"
-                    android:text="행사정보5" />
-
-                <TextView
-                    android:id="@+id/ei_loc5"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignBaseline="@id/ei_title_desc5"
-                    android:text="행사위치5" />
-
-            </RelativeLayout>
-        </LinearLayout>
+            </LinearLayout>
+        </HorizontalScrollView>
 
         <LinearLayout
             android:orientation="horizontal"

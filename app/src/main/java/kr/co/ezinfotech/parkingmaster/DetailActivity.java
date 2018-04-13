@@ -1,11 +1,16 @@
 package kr.co.ezinfotech.parkingmaster;
 
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
@@ -24,11 +29,62 @@ public class DetailActivity extends ActivityBase {
 
     private LineChart mChart;
 
+    ParkingMasterDBHelper dbHelper = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
+        Intent intent = getIntent();
+        int pzNo = intent.getIntExtra("pzNo", 0);
+
+        dbHelper = new ParkingMasterDBHelper(this);
+        setPZData(selectWithNo(pzNo));
+
+        showLineChart();
+    }
+
+    private void setPZData(PZData pzdataVal) {
+        ((TextView)findViewById(R.id.parkDetailTitle)).setText(pzdataVal.name);
+        ((TextView)findViewById(R.id.parkDetailFee)).setText(pzdataVal.feeInfo + " : 기본 " + pzdataVal.baseTime + "분 " + pzdataVal.baseFee +"원, 초과 " + pzdataVal.addTermTime + "분 " + pzdataVal.addTermFee + "원");
+        ((TextView)findViewById(R.id.parkDetailTotal)).setText("주차면수 : " + pzdataVal.totalP + "대");
+    }
+
+    private PZData selectWithNo(int noVal) {
+        SQLiteDatabase db= dbHelper.getReadableDatabase();
+        String sqlSelect = ParkingZoneDBCtrct.SQL_SELECT_WITH_NO + noVal;
+        Cursor cursor = db.rawQuery(sqlSelect, null);
+
+        PZData tempPZData = new PZData();
+
+        if(cursor.moveToFirst()) {
+            tempPZData.no = cursor.getInt(0);
+            tempPZData.name = cursor.getString(1);
+            tempPZData.addr = cursor.getString(2);
+            tempPZData.tel = cursor.getString(3);
+            tempPZData.loc = new Location("");
+            tempPZData.loc.setLatitude(Double.parseDouble(cursor.getString(4)));
+            tempPZData.loc.setLongitude(Double.parseDouble(cursor.getString(5)));
+            tempPZData.totalP = cursor.getString(6);
+            tempPZData.opDate = cursor.getString(7);
+            tempPZData.wOpStart = cursor.getString(8);
+            tempPZData.wOpEnd = cursor.getString(9);
+            tempPZData.sOpStart = cursor.getString(10);
+            tempPZData.sOpEnd = cursor.getString(11);
+            tempPZData.hOpStart = cursor.getString(12);
+            tempPZData.hOpEnd = cursor.getString(13);
+            tempPZData.feeInfo = cursor.getString(14);
+            tempPZData.baseTime = cursor.getString(15);
+            tempPZData.baseFee = cursor.getString(16);
+            tempPZData.addTermTime = cursor.getString(17);
+            tempPZData.addTermFee = cursor.getString(18);
+            tempPZData.remarks = cursor.getString(19);
+        }
+        return tempPZData;
+    }
+
+    private void showLineChart() {
         //////////////////// Line chart START ///////////////////////////////
         mChart = (LineChart) findViewById(R.id.linechart1);
         //mChart.setOnChartGestureListener(this);

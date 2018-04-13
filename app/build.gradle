@@ -19,7 +19,7 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.android.support:design:26.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
@@ -29,4 +29,9 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.0.3'
     compile 'gun0912.ted:tedpermission:2.1.1'
+    compile 'com.github.smart-fun:XmlToJson:1.4.4'
+    // https://github.com/smart-fun/XmlToJson
+    implementation files('libs/opencsv-4.1.jar')
+    compile 'org.apache.commons:commons-lang3:3.7'
+    compile 'com.appolica:interactive-info-window:v1.0.6'   // https://github.com/Appolica/InteractiveInfoWindowAndroid
 }

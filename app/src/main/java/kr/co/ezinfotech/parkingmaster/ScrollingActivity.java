@@ -2,65 +2,49 @@ package kr.co.ezinfotech.parkingmaster;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Typeface;
+import android.content.res.AssetManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Address;
-import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.style.StyleSpan;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.BarChart;
-import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.BarData;
-import com.github.mikephil.charting.data.BarDataSet;
-import com.github.mikephil.charting.data.BarEntry;
-import com.github.mikephil.charting.data.PieData;
-import com.github.mikephil.charting.data.PieDataSet;
-import com.github.mikephil.charting.data.PieEntry;
-import com.github.mikephil.charting.formatter.PercentFormatter;
-import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
-import com.github.mikephil.charting.listener.ChartTouchListener;
-import com.github.mikephil.charting.listener.OnChartGestureListener;
-import com.github.mikephil.charting.utils.ColorTemplate;
-import com.github.mikephil.charting.utils.MPPointF;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
+import com.opencsv.CSVReader;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ScrollingActivity extends ActivityBase implements OnChartGestureListener {
+public class ScrollingActivity extends AppCompatActivity {
 
-    LocationManager mLocMan = null;
-    String mProvider = null;
     boolean isPermissionGranted = false;
 
-    double myLat = 0;
-    double myLon = 0;
+    Location myLoc = new Location("myLoc");
 
     private Geocoder mCoder;
+    private GPSTracker gps = null;
 
-    private PieChart mChart;
-    private BarChart mChart2;
+    public SearchView searchView = null;
+
+    ParkingMasterDBHelper dbHelper = null;
+
+    PisDataManager pdm = new PisDataManager();
+    PisDataManager pdmForSearch = new PisDataManager();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,130 +55,117 @@ public class ScrollingActivity extends ActivityBase implements OnChartGestureLis
 
         runPermissionListener(this);
 
-        drawPieChart();
-        drawBarChart();
+        //drawBarChart();
     }
 
+    private void initPdm() {
+        pdm = new PisDataManager();
+        pdm.setMode(0);
+        pdm.setContext(this);
+        pdm.setLoc(myLoc);
+        pdm.setDbHelper(this);
+        pdm.setLL((LinearLayout)findViewById(R.id.ll_parkinglock));
+        pdm.setBC((BarChart)findViewById(R.id.st_bar_chart1));
+        pdm.setPisData();
+    }
+
+    private void initPdmForSearch(String searchVal) {
+        pdmForSearch = new PisDataManager();
+        pdmForSearch.setMode(1);
+        pdmForSearch.setDbHelper(this);
+        pdmForSearch.setSearchStr(searchVal);
+        pdmForSearch.setContext(this);
+        pdmForSearch.setPisData();
+    }
+
+    private void initCsvFiles() {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery(ParkingZoneDBCtrct.SQL_SELECT, null);
+        cursor.moveToFirst();
+
+        // PARKING_ZONE 테이블의 데이터셋이 0인경우 *.csv파일을 읽어서 테이블에 INSERT
+        if(0 == cursor.getCount()) {
+            loadNInsertCSV("PI_JEJU_20170731.csv");
+            loadNInsertCSV("PI_SEO_20160831.csv");
+        }
+    }
+
+    // http://opencsv.sourceforge.net/
+    private void loadNInsertCSV(String fileName) {
+        AssetManager am = getResources().getAssets();
+        InputStream is = null ;
+        try {
+            is = am.open(fileName);
+            CSVReader csvReader = new CSVReader(new InputStreamReader(is));
+            String [] nextLine;
+            csvReader.readNext();   // 첫번째 행 건너뛰기
+            while ((nextLine = csvReader.readNext()) != null) {
+                // 1. csv에 위,경도값이 없을 경우 주소를 지오코딩하여 DB에 Insert
+                if( "".equals(nextLine[28]) || "".equals(nextLine[29]) ) {
+                    Location tempLoc = runGeoCoding(nextLine[4]);
+                    nextLine[28] = Double.toString(tempLoc.getLatitude());
+                    nextLine[29] = Double.toString(tempLoc.getLongitude());
+                    insertPZTable(nextLine);
+                } else {    // 2. csv에 위,경도값이 있는 경우
+                    insertPZTable(nextLine);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e("loadNInsertCSV", "IOException!");
+        }
+    }
+
+    private void insertPZTable(String[] csvData) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        String sqlInsert = ParkingZoneDBCtrct.SQL_INSERT +
+                " (" +
+                "'" + csvData[1] + "', " +
+                "'" + csvData[4] + "', " +
+                "'" + csvData[27] + "', " +
+                "'" + csvData[28] + "', " +
+                "'" + csvData[29] + "', " +
+                "'" + csvData[6] + "', " +
+                "'" + csvData[9] + "', " +
+                "'" + csvData[10] + "', " +
+                "'" + csvData[11] + "', " +
+                "'" + csvData[12] + "', " +
+                "'" + csvData[13] + "', " +
+                "'" + csvData[14] + "', " +
+                "'" + csvData[15] + "', " +
+                "'" + csvData[16] + "', " +
+                "'" + csvData[17] + "', " +
+                "'" + csvData[18] + "', " +
+                "'" + csvData[19] + "', " +
+                "'" + csvData[20] + "', " +
+                "'" + csvData[25] +
+                "')";
+        db.execSQL(sqlInsert);
+    }
+
+    private void dropTables() {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.execSQL(ParkingZoneDBCtrct.SQL_DROP_TBL);
+        db.execSQL(FavoritesDBCtrct.SQL_DROP_TBL);
+    }
+
+    private void deleteTables() {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        //db.execSQL(ParkingZoneDBCtrct.SQL_DELETE);
+        db.execSQL(FavoritesDBCtrct.SQL_DELETE);
+    }
+
+    private void initTables() {
+        dbHelper = new ParkingMasterDBHelper(this);
+    }
+
+    /*
     private void drawBarChart() {
-        mChart2 = (BarChart) findViewById(R.id.st_bar_chart1);
-
-        mChart2.getDescription().setEnabled(false);
-
-        // if more than 60 entries are displayed in the chart, no values will be
-        // drawn
-        mChart2.setMaxVisibleValueCount(10);
-
-        // scaling can now only be done on x- and y-axis separately
-        mChart2.setPinchZoom(false);
-
-        mChart2.setDrawGridBackground(false);
-        mChart2.setDrawBarShadow(false);
-
-        mChart2.setDrawValueAboveBar(false);
-        mChart2.setHighlightFullBarEnabled(false);
-
-        // change the position of the y-labels
-        YAxis leftAxis = mChart2.getAxisLeft();
-        leftAxis.setValueFormatter(new MyAxisValueFormatter());
-        leftAxis.setAxisMinimum(0f); // this replaces setStartAtZero(true)
-        mChart2.getAxisRight().setEnabled(false);
-
-        XAxis xLabels = mChart2.getXAxis();
-        xLabels.setGranularity(1f);
-        xLabels.setCenterAxisLabels(true);
-        xLabels.setPosition(XAxis.XAxisPosition.BOTTOM);
-        String xLabelsStr[] = {"제주대학교", "제주공항", "벤처마루", "제주시청", "", ""};
-        xLabels.setValueFormatter(new MyAxisValueFormatter2(xLabelsStr));
-
-        ArrayList<BarEntry> yVals1 = new ArrayList<BarEntry>();
-        yVals1.add(new BarEntry(1, new float[]{20, 80}, getResources().getDrawable(R.drawable.star)));
-        yVals1.add(new BarEntry(2, new float[]{30, 70}, getResources().getDrawable(R.drawable.star)));
-        yVals1.add(new BarEntry(3, new float[]{15, 85}, getResources().getDrawable(R.drawable.star)));
-        yVals1.add(new BarEntry(4, new float[]{34, 66}, getResources().getDrawable(R.drawable.star)));
-
-        BarDataSet set1 = new BarDataSet(yVals1, "주차 점유대수");
-        set1.setDrawIcons(false);
-        set1.setColors(getColors());
-        set1.setStackLabels(new String[]{"주차점유", "주차면수"});
-
-        ArrayList<IBarDataSet> dataSets = new ArrayList<IBarDataSet>();
-        dataSets.add(set1);
-
-        BarData data = new BarData(dataSets);
-        data.setValueFormatter(new MyValueFormatter());
-        data.setValueTextColor(Color.WHITE);
-
-        mChart2.setData(data);
-        mChart2.setFitBars(true);
-        mChart2.invalidate();
-
-        Legend l2 = mChart2.getLegend();
-        l2.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
-        l2.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
-        l2.setOrientation(Legend.LegendOrientation.HORIZONTAL);
-        l2.setDrawInside(false);
-        l2.setFormSize(8f);
-        l2.setFormToTextSpace(4f);
-        l2.setXEntrySpace(6f);
+        BarChartManager bcm = new BarChartManager((BarChart)findViewById(R.id.st_bar_chart1), this);
+        bcm.draw();
     }
-
-    private void drawPieChart() {
-        mChart = (PieChart) findViewById(R.id.pie_chart1);
-
-        ////////////////////////////////////////////////////////////////////// For click event
-        mChart.setOnChartGestureListener(this);
-        mChart.setTouchEnabled(true);
-        //////////////////////////////////////////////////////////////////////
-
-        mChart.setUsePercentValues(true);
-        mChart.getDescription().setEnabled(false);
-        mChart.setExtraOffsets(5, 10, 5, 5);
-
-        mChart.setDragDecelerationFrictionCoef(0.95f);
-
-        mChart.setCenterTextTypeface(mTfLight);
-        mChart.setCenterText(generateCenterSpannableText("40"));
-
-        mChart.setDrawHoleEnabled(true);
-        mChart.setHoleColor(Color.parseColor("#7c88d2"));
-
-        mChart.setTransparentCircleColor(Color.WHITE);
-        mChart.setTransparentCircleAlpha(110);
-
-        mChart.setHoleRadius(58f);
-        mChart.setTransparentCircleRadius(61f);
-
-        //mChart.setDrawCenterText(true);
-
-        mChart.setRotationAngle(0);
-        // enable rotation of the chart by touch
-        mChart.setRotationEnabled(true);
-        mChart.setHighlightPerTapEnabled(true);
-
-        // add a selection listener
-        //mChart.setOnChartValueSelectedListener(this);
-
-        setData(2, 100);
-
-        mChart.animateY(1400, Easing.EasingOption.EaseInOutQuad);
-
-        //mSeekBarX.setOnSeekBarChangeListener(this);
-        //mSeekBarY.setOnSeekBarChangeListener(this);
-
-        Legend l = mChart.getLegend();
-        l.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
-        l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
-        l.setOrientation(Legend.LegendOrientation.VERTICAL);
-        l.setDrawInside(false);
-        l.setXEntrySpace(7f);
-        l.setYEntrySpace(0f);
-        l.setYOffset(0f);
-
-        // entry label styling
-        mChart.setEntryLabelColor(Color.WHITE);
-        mChart.setEntryLabelTypeface(mTfRegular);
-        mChart.setEntryLabelTextSize(12f);
-    }
+    */
 
     // Using TedPermission library - https://github.com/ParkSangGwon/TedPermission
     private void runPermissionListener(Context ctx) {
@@ -203,6 +174,16 @@ public class ScrollingActivity extends ActivityBase implements OnChartGestureLis
             public void onPermissionGranted() {
                 Toast.makeText(ScrollingActivity.this, "Permission Granted", Toast.LENGTH_SHORT).show();
                 InitializeLocationService();
+
+                initTables();   // Initialize DB - http://recipes4dev.tistory.com/124?category=698941
+
+                //deleteTables(); // TEST!!!!
+
+                initCsvFiles();
+                initPdm();
+
+                runAirDataManager();
+
                 isPermissionGranted = true;
             }
 
@@ -224,28 +205,38 @@ public class ScrollingActivity extends ActivityBase implements OnChartGestureLis
     }
 
     private void InitializeLocationService() {
-        mLocMan = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        mProvider = mLocMan.getBestProvider(new Criteria(), true);
 
-        try {
-            if(null == mProvider) {
-                mLocMan.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 1, mListener);
-                mLocMan.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 1, mListener);
-            } else {
-                mLocMan.requestLocationUpdates(mProvider, 3000, 1, mListener);
-            }
+        gps = new GPSTracker(this);
+        if(gps.canGetLocation()) {
 
-        } catch (SecurityException e) {
-            Log.i("InitializeLoc", "requestLocationUpdates exception!");
+            myLoc.setLatitude(gps.getLatitude());
+            myLoc.setLongitude(gps.getLongitude());
+
+            Log.i("InitializeLocation", myLoc.getLatitude() + "/" + myLoc.getLongitude());
+
+            runReverseGeoCoding(myLoc.getLatitude(), myLoc.getLongitude());
+
+            runWeatherDataManager();
+        } else {
+            gps.showSettingsAlert();
         }
     }
 
     private void runWeatherDataManager() {
-        WeatherDataManager wdm = new WeatherDataManager(myLat, myLon, (TextView) findViewById(R.id.wt_ac));
-        wdm.setSkyTextView((TextView) findViewById(R.id.wt_title));
-        wdm.setT1hTextView((TextView) findViewById(R.id.wt_tp));
-        wdm.setSkyImageView((ImageView) findViewById(R.id.wt_pic));
+        WeatherDataManager wdm = new WeatherDataManager(myLoc.getLatitude(), myLoc.getLongitude(), (TextView)findViewById(R.id.wt_ac));
+        wdm.setSkyTextView((TextView)findViewById(R.id.wt_title));
+        wdm.setT1hTextView((TextView)findViewById(R.id.wt_tp));
+        wdm.setSkyImageView((ImageView)findViewById(R.id.wt_pic));
         wdm.setWeatherData();
+    }
+
+    private void runAirDataManager() {
+        AirDataManager adm = new AirDataManager(myLoc);
+        adm.setLocTextView((TextView)findViewById(R.id.air_loc));
+        adm.setPm10TextView((TextView)findViewById(R.id.air_pm10));
+        adm.setPm25TextView((TextView)findViewById(R.id.air_pm25));
+        adm.setO3TextView((TextView)findViewById(R.id.air_o3));
+        adm.setAirData();
     }
 
     public void onResume() {
@@ -253,18 +244,55 @@ public class ScrollingActivity extends ActivityBase implements OnChartGestureLis
 
         if(isPermissionGranted) {
             InitializeLocationService();
+
+            initTables();
+            initCsvFiles();
+            initPdm();
+            runAirDataManager();
         }
     }
 
     public void onPause() {
         super.onPause();
 
-        if(isPermissionGranted && (null != mLocMan)) {
-            mLocMan.removeUpdates(mListener);
+        if(isPermissionGranted && (null != gps)) {
+            gps.stopUsingGPS();
         }
+
         Log.i("onPause", "Get my location END");
     }
 
+    // 실제주소 => 위,경도 변환 - http://bitsoul.tistory.com/135
+    private Location runGeoCoding(String addr) {
+        Location result = null;
+        List<Address> list = null;
+
+        try {
+            list = mCoder.getFromLocationName(
+                    addr, // 지역 이름
+                    10); // 읽을 개수
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e("runGeoCoding","입출력 오류 - 서버에서 주소변환시 에러발생");
+        }
+
+        if (list != null) {
+            if (list.size() == 0) {
+                Log.e("runGeoCoding",addr + " 해당되는 주소 정보는 없습니다");
+                result = new Location("");
+                result.setLatitude(0);
+                result.setLongitude(0);
+            } else {
+                result = new Location("");
+                result.setLatitude(list.get(0).getLatitude());
+                result.setLongitude(list.get(0).getLongitude());
+            }
+        }
+
+        return result;
+    }
+
+    // 위,경도 => 실제주소 변환
     private void runReverseGeoCoding(double latVal, double lonVal) {
         try {
             List<Address> list = mCoder.getFromLocation(latVal, lonVal, 5);
@@ -285,45 +313,30 @@ public class ScrollingActivity extends ActivityBase implements OnChartGestureLis
         }
     }
 
-    LocationListener mListener = new LocationListener() {
-        public void onLocationChanged(Location location) {
-            myLat = location.getLatitude();
-            myLon = location.getLongitude();
-            Log.i("onLocationChanged", myLat + "/" + myLon);
-
-            runReverseGeoCoding(myLat, myLon);
-            runWeatherDataManager();
-        }
-
-        public void onProviderDisabled(String provider) {
-            Log.i("onProviderDisabled", "Get my location service disabled");
-        }
-
-        public void onProviderEnabled(String provider) {
-            Log.i("onProviderEnabled", "Get my location service Enabled");
-        }
-
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-            String sStatus = "";
-            switch(status) {
-                case LocationProvider.OUT_OF_SERVICE :
-                    sStatus = "범위 벗어남";
-                    break;
-                case LocationProvider.TEMPORARILY_UNAVAILABLE :
-                    sStatus = "일시적 불능";
-                    break;
-                case LocationProvider.AVAILABLE :
-                    sStatus = "사용 가능";
-                    break;
-            }
-            Log.i("onStatusChanged", sStatus);
-        }
-    };
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_scrolling, menu);
+
+        // For search START - http://iw90.tistory.com/222, http://recipes4dev.tistory.com/141
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        searchView = (SearchView) searchItem.getActionView();
+        searchView.setQueryHint(getString(R.string.edittext_search_video));
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {    // 검색어 완료시
+                Log.i("onQueryTextSubmit", "검색어 완료시 : " + s);
+                initPdmForSearch(s);
+                return false;
+            }
+            @Override
+            public boolean onQueryTextChange(String s) {    // 검색어 입력시
+                Log.i("onQueryTextChange", "검색어 입력시");
+                return false;
+            }
+        });
+        // For search END
+
         return true;
     }
 
@@ -339,123 +352,5 @@ public class ScrollingActivity extends ActivityBase implements OnChartGestureLis
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void setData(int count, float range) {
-
-        float mult = range;
-        ArrayList<PieEntry> entries = new ArrayList<PieEntry>();
-        // NOTE: The order of the entries when being added to the entries array determines their position around the center of
-        // the chart.
-        /*
-        for (int i = 0; i < count ; i++) {
-            entries.add(new PieEntry((float) ((Math.random() * mult) + mult / 5),
-                    mParties[i % mParties.length],
-                    getResources().getDrawable(R.drawable.star)));
-        }
-        */
-        entries.add(new PieEntry(40, "주차점유"));
-        entries.add(new PieEntry(60, "주차가능"));
-
-        PieDataSet dataSet = new PieDataSet(entries, "주차점유율");
-
-        dataSet.setDrawIcons(false);
-
-        dataSet.setSliceSpace(3f);
-        dataSet.setIconsOffset(new MPPointF(0, 40));
-        dataSet.setSelectionShift(5f);
-
-        // add a lot of colors
-
-        ArrayList<Integer> colors = new ArrayList<Integer>();
-
-        for (int c : ColorTemplate.COLORFUL_COLORS)
-            colors.add(c);
-
-        dataSet.setColors(colors);
-
-        PieData data = new PieData(dataSet);
-        data.setValueFormatter(new PercentFormatter());
-        data.setValueTextSize(11f);
-        data.setValueTextColor(Color.WHITE);
-        data.setValueTypeface(mTfLight);
-        mChart.setData(data);
-
-        // undo all highlights
-        mChart.highlightValues(null);
-
-        mChart.invalidate();
-    }
-
-    private SpannableString generateCenterSpannableText(String cs_text) {
-        /*
-        SpannableString s = new SpannableString("MPAndroidChart\ndeveloped by Philipp Jahoda");
-        s.setSpan(new RelativeSizeSpan(1.7f), 0, 14, 0);
-        s.setSpan(new StyleSpan(Typeface.NORMAL), 14, s.length() - 15, 0);
-        s.setSpan(new ForegroundColorSpan(Color.GRAY), 14, s.length() - 15, 0);
-        s.setSpan(new RelativeSizeSpan(.8f), 14, s.length() - 15, 0);
-        s.setSpan(new StyleSpan(Typeface.ITALIC), s.length() - 14, s.length(), 0);
-        s.setSpan(new ForegroundColorSpan(ColorTemplate.getHoloBlue()), s.length() - 14, s.length(), 0);
-        */
-        SpannableString s = new SpannableString(cs_text + "%");
-        s.setSpan(new StyleSpan(Typeface.BOLD), 0, 3, 0);
-        return s;
-    }
-
-    private int[] getColors() {
-        int stacksize = 2;
-        // have as many colors as stack-values per entry
-        int[] colors = new int[stacksize];
-        for (int i = 0; i < colors.length; i++) {
-            colors[i] = ColorTemplate.COLORFUL_COLORS[i];
-        }
-        return colors;
-    }
-
-    @Override
-    public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
-        Log.i("Gesture", "START, x: " + me.getX() + ", y: " + me.getY());
-    }
-
-    @Override
-    public void onChartGestureEnd(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
-        Log.i("Gesture", "END, lastGesture: " + lastPerformedGesture);
-
-        // un-highlight values after the gesture is finished and no single-tap
-        if(lastPerformedGesture != ChartTouchListener.ChartGesture.SINGLE_TAP)
-            mChart.highlightValues(null); // or highlightTouch(null) for callback to onNothingSelected(...)
-    }
-
-    @Override
-    public void onChartLongPressed(MotionEvent me) {
-        Log.i("LongPress", "Chart longpressed.");
-    }
-
-    @Override
-    public void onChartDoubleTapped(MotionEvent me) {
-        Log.i("DoubleTap", "Chart double-tapped.");
-    }
-
-    @Override
-    public void onChartSingleTapped(MotionEvent me) {
-        Log.i("SingleTap", "Chart single-tapped.");
-        //Toast.makeText(getApplicationContext(), "Chart single-tapped.", Toast.LENGTH_LONG).show();
-        Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
-        startActivity(intent);
-    }
-
-    @Override
-    public void onChartFling(MotionEvent me1, MotionEvent me2, float velocityX, float velocityY) {
-        Log.i("Fling", "Chart flinged. VeloX: " + velocityX + ", VeloY: " + velocityY);
-    }
-
-    @Override
-    public void onChartScale(MotionEvent me, float scaleX, float scaleY) {
-        Log.i("Scale / Zoom", "ScaleX: " + scaleX + ", ScaleY: " + scaleY);
-    }
-
-    @Override
-    public void onChartTranslate(MotionEvent me, float dX, float dY) {
-        Log.i("Translate / Move", "dX: " + dX + ", dY: " + dY);
     }
 }

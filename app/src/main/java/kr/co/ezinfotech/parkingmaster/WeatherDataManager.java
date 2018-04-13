@@ -45,8 +45,22 @@ public class WeatherDataManager extends Activity{
     public static int TO_GRID = 0;
     public static int TO_GPS = 1;
 
+    private int mode = 0;   // 0: setText용, 1: 직접 수정
+
+    InfoWindowData info;
+
     public WeatherDataManager(double lat, double lng, TextView tvTime) {
         this.tvTime = tvTime;
+        getTime();
+
+        LatXLngY tmp = convertGRID_GPS(TO_GRID, lat, lng);
+        nx = tmp.x;
+        ny = tmp.y;
+    }
+
+    public WeatherDataManager(double lat, double lng, InfoWindowData infoVal) {
+        this.info = infoVal;
+        mode = 1;
         getTime();
 
         LatXLngY tmp = convertGRID_GPS(TO_GRID, lat, lng);
@@ -105,6 +119,7 @@ public class WeatherDataManager extends Activity{
         if(inowMinutes < 30){
             // 30분보다 작으면 한시간 전 값
             inowHours = inowHours - 1;
+            nowHours = String.valueOf(inowHours);
             if(inowHours < 0){
                 // 자정 이전은 전날로 계산
                 cal.add(Calendar.DATE, -1);
@@ -121,10 +136,11 @@ public class WeatherDataManager extends Activity{
                 inowHours = Integer.parseInt(nowHours);
             }
         }
-        /*
+
         if(inowHours < 10) {
             nowHours = '0' + nowHours;
         }
+        /*
         if(inowMonth < 10) {
             nowMonth = '0' + nowMonth;
         }
@@ -136,7 +152,9 @@ public class WeatherDataManager extends Activity{
         baseDate = nowYear + "" + nowMonth + "" + nowDay;
         baseTime = nowHours + "00";
 
-        tvTime.setText("기상청 발표 - " + nowHours + "시 기준");
+        if(0 == mode) {
+            tvTime.setText("기상청 발표 - " + inowHours + "시 기준");
+        }
 
         Log.i("getTime()", baseDate + "/" + baseTime);
     }
@@ -313,9 +331,15 @@ public class WeatherDataManager extends Activity{
 
         Log.i("WeatherDataManager", result.toString());
 
-        setWeatherSkyStatus();
-        setWeatherT1hStatus();
-        setWeatherSkyImage();
+        if(0 == mode) {
+            setWeatherSkyStatus();
+            setWeatherT1hStatus();
+            setWeatherSkyImage();
+        } else if(1 == mode) {
+            setWeatherSkyStatusToInfo();
+            setWeatherT1hStatusToInfo();
+            setWeatherSkyImageToInfo();
+        }
     }
 
     // 하늘상태(SKY) 코드 : 맑음(1), 구름조금(2), 구름많음(3), 흐림(4)
@@ -339,6 +363,32 @@ public class WeatherDataManager extends Activity{
                     break;
         }
         return returnVal;
+    }
+
+    private void setWeatherSkyStatusToInfo() {
+        JSONObject jsonTemp = null;
+        JSONArray jsonaTemp = null;
+        String resultStr = null;
+
+        try {
+            jsonTemp = (JSONObject)result.get("response");
+            jsonTemp = (JSONObject)jsonTemp.get("body");
+
+            // {"response":{"header":{"resultCode":"0000","resultMsg":"OK"},"body":{"items":"","numOfRows":10,"pageNo":1,"totalCount":0}}} 일 경우
+            if(0 == jsonTemp.getInt("totalCount")) {
+                Log.e("getWeatherSkyStatus", "JSON totalCount 0");
+                resultStr = "날씨정보 : --";
+            } else {
+                jsonTemp = (JSONObject)jsonTemp.get("items");
+                jsonaTemp = (JSONArray)jsonTemp.get("item");
+                jsonTemp = (JSONObject)jsonaTemp.get(4);
+                skyStatus = jsonTemp.getInt("obsrValue");
+                resultStr = "날씨정보 : " + convertSkyCodeToStr(skyStatus);
+            }
+        } catch (Throwable t){
+            Log.e("getWeatherSkyStatus", "Could not parse malformed JSON");
+        }
+        info.setWtTitle2(resultStr);
     }
 
     private void setWeatherSkyStatus() {
@@ -391,6 +441,32 @@ public class WeatherDataManager extends Activity{
         }
     }
 
+    private void setWeatherT1hStatusToInfo() {
+        JSONObject jsonTemp = null;
+        JSONArray jsonaTemp = null;
+        String resultVal = null;
+
+        try {
+            jsonTemp = (JSONObject)result.get("response");
+            jsonTemp = (JSONObject)jsonTemp.get("body");
+
+            // {"response":{"header":{"resultCode":"0000","resultMsg":"OK"},"body":{"items":"","numOfRows":10,"pageNo":1,"totalCount":0}}} 일 경우
+            if(0 == jsonTemp.getInt("totalCount")) {
+                resultVal = "--℃";
+                Log.e("setWeatherT1hStatusToIn", "JSON totalCount 0");
+            } else {
+                jsonTemp = (JSONObject)jsonTemp.get("items");
+                jsonaTemp = (JSONArray)jsonTemp.get("item");
+                jsonTemp = (JSONObject)jsonaTemp.get(5);
+                t1hStatus = jsonTemp.getString("obsrValue");
+                resultVal = t1hStatus + "℃";
+            }
+        } catch (Throwable t){
+            Log.e("setWeatherT1hStatusToIn", "Could not parse malformed JSON");
+        }
+        info.setWtTp2(resultVal);
+    }
+
     private void setWeatherT1hStatus() {
         JSONObject jsonTemp = null;
         JSONArray jsonaTemp = null;
@@ -438,6 +514,41 @@ public class WeatherDataManager extends Activity{
             }).start();
         } catch (Throwable t){
             Log.e("setWeatherT1hStatus", "Could not parse malformed JSON");
+        }
+    }
+
+    private void setSkyImageToInfo(int ptyVal, int skyVal) {
+        if(0 == ptyVal) {
+            switch(skyVal) {
+                case 1 :
+                    info.setWtpic2("sun");
+                    break;
+                case 2 :
+                    info.setWtpic2("cloud1");
+                    break;
+                case 3 :
+                    info.setWtpic2("cloud2");
+                    break;
+                case 4 :
+                    info.setWtpic2("heu");
+                    break;
+                default :
+                    break;
+            }
+        } else {
+            switch(ptyVal) {
+                case 1 :
+                    info.setWtpic2("rain");
+                    break;
+                case 2 :
+                    info.setWtpic2("rain");
+                    break;
+                case 3 :
+                    info.setWtpic2("snow");
+                    break;
+                default :
+                    break;
+            }
         }
     }
 
@@ -541,6 +652,39 @@ public class WeatherDataManager extends Activity{
                 default :
                     break;
             }
+        }
+    }
+
+    private void setWeatherSkyImageToInfo() {
+        JSONObject jsonTemp = null;
+        JSONArray jsonaTemp = null;
+
+        int ptyStatus = 0;
+        int skyStatus = 0;
+
+        try {
+            jsonTemp = (JSONObject)result.get("response");
+            jsonTemp = (JSONObject)jsonTemp.get("body");
+
+            // {"response":{"header":{"resultCode":"0000","resultMsg":"OK"},"body":{"items":"","numOfRows":10,"pageNo":1,"totalCount":0}}} 일 경우
+            if(0 == jsonTemp.getInt("totalCount")) {
+                //ivSky.setImageResource(R.mipmap.ic_launcher);
+                info.setWtpic2("sun");
+                Log.e("setWeatherSkyImage", "JSON totalCount 0");
+                return;
+            } else {
+                jsonTemp = (JSONObject)jsonTemp.get("items");
+                jsonaTemp = (JSONArray)jsonTemp.get("item");
+                jsonTemp = (JSONObject)jsonaTemp.get(1);
+                ptyStatus = jsonTemp.getInt("obsrValue");
+
+                jsonTemp = (JSONObject)jsonaTemp.get(4);
+                skyStatus = jsonTemp.getInt("obsrValue");
+
+                setSkyImageToInfo(ptyStatus, skyStatus);
+            }
+        } catch (Throwable t){
+            Log.e("setWeatherSkyImage", "Could not parse malformed JSON");
         }
     }
 
