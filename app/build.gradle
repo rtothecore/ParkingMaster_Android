@@ -33,5 +33,6 @@ dependencies {
     // https://github.com/smart-fun/XmlToJson
     implementation files('libs/opencsv-4.1.jar')
     compile 'org.apache.commons:commons-lang3:3.7'
-    compile 'com.appolica:interactive-info-window:v1.0.6'   // https://github.com/Appolica/InteractiveInfoWindowAndroid
+    compile 'com.appolica:interactive-info-window:v1.0.6'
+    // https://github.com/Appolica/InteractiveInfoWindowAndroid
 }

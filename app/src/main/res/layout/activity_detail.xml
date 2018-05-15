@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="kr.co.ezinfotech.parkingmaster.DetailActivity">
+    tools:context="kr.co.ezinfotech.parkingmaster.DetailActivity"
+    android:background="#64BEF7">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,49 +21,71 @@
                 android:layout_height="match_parent"
                 android:layout_margin="5dp"
                 android:padding="5dp"
-                android:background="#d2cb3e">
+                android:background="@android:color/transparent">
+
+                <ImageView
+                    android:id="@+id/parkDetailBg"
+                    android:layout_width="match_parent"
+                    android:layout_height="170dp"
+                    android:adjustViewBounds="true"
+                    android:maxHeight="0dp"
+                    android:scaleType="fitStart"
+                    android:src="@drawable/parking_possible_info_bg" />
 
                 <TextView
                     android:id="@+id/parkDetailTitle"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="----"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="#ffffff"
+                    android:gravity="center" />
 
                 <TextView
                     android:id="@+id/parkDetailFee"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/parkDetailTitle"
-                    android:text="----" />
+                    android:text="----"
+                    android:textColor="#097FDA"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="10dp" />
 
                 <TextView
                     android:id="@+id/parkDetailTotal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/parkDetailFee"
-                    android:text="----" />
+                    android:text="----"
+                    android:textColor="#097FDA"
+                    android:layout_marginLeft="10dp" />
 
                 <TextView
                     android:id="@+id/parkDetailUse"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/parkDetailTotal"
-                    android:text="주차점유 : 45대" />
+                    android:text="주차점유 : 45대"
+                    android:textColor="#097FDA"
+                    android:layout_marginLeft="10dp" />
 
                 <TextView
                     android:id="@+id/parkDetailAvail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/parkDetailUse"
-                    android:text="주차가능 : 65대" />
+                    android:text="주차가능 : 65대"
+                    android:textColor="#097FDA"
+                    android:layout_marginLeft="10dp" />
 
                 <TextView
                     android:id="@+id/parkDetailElec"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/parkDetailAvail"
-                    android:text="전기차 충전가능 : 2곳 중 1곳" />
+                    android:text="전기차 충전가능 : 2곳 중 1곳"
+                    android:textColor="#097FDA"
+                    android:layout_marginLeft="10dp" />
             </RelativeLayout>
         </LinearLayout>
 
@@ -76,20 +99,20 @@
                 android:layout_height="match_parent"
                 android:layout_margin="5dp"
                 android:padding="5dp"
-                android:background="#3eadd2">
-
-                <TextView
-                    android:id="@+id/parkMeasureTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="주차점유율 예측"
-                    android:textStyle="bold" />
+                android:background="@android:color/transparent">
+                
+                <Button
+                    android:id="@+id/btn_guess"
+                    android:layout_width="150dp"
+                    android:layout_height="34dp"
+                    android:background="@drawable/parking_guess_butten_n" />
 
                 <com.github.mikephil.charting.charts.LineChart
                     android:id="@+id/linechart1"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_below="@+id/parkMeasureTitle" />
+                    android:layout_below="@+id/btn_guess"
+                    android:background="#E6E6E6" />
 
             </RelativeLayout>
         </LinearLayout>

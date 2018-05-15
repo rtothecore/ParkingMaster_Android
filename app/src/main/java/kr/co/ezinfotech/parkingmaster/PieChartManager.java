@@ -9,6 +9,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -34,12 +35,12 @@ import java.util.ArrayList;
 public class PieChartManager extends ActivityBase implements OnChartGestureListener {
     private PieChart mChart = null;
     private PisDataManager pdm = null;
-    private int clickedNo = 0;
+    private String clickedNo = "";
     private Context ctx = null;
     LinearLayout ll = null;
     private String pkName = null;
 
-    public PieChartManager(PisDataManager pdmVal, int clickedNoVal, Context ctxVal, LinearLayout llVal, String name) {
+    public PieChartManager(PisDataManager pdmVal, String clickedNoVal, Context ctxVal, LinearLayout llVal, String name) {
         pdm = pdmVal;
         clickedNo = clickedNoVal;
         ctx = ctxVal;
@@ -63,15 +64,39 @@ public class PieChartManager extends ActivityBase implements OnChartGestureListe
         //RelativeLayout.LayoutParams rlLP = new RelativeLayout.LayoutParams(width, RelativeLayout.LayoutParams.MATCH_PARENT);
         RelativeLayout.LayoutParams rlLP = new RelativeLayout.LayoutParams(width, height);
         rlLP.setMargins(5, 5, 5, 5);
-        String strColor = "#7c88d2";
+        String strColor = "#64BEF7";
         rl.setBackgroundColor(Color.parseColor(strColor));
         rl.setPadding(5, 5, 5, 5);
         rl.setLayoutParams(rlLP);
+
+        /////////////////////////// Added for background /////////////////////////////////
+        /*
+        <ImageView
+                        android:id="@+id/AirBg"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:adjustViewBounds="true"
+                        android:maxHeight="0dp"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/airinfo_bg" />
+         */
+        ImageView bgImage = new ImageView(ctx);
+        RelativeLayout.LayoutParams bgImageParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+        bgImage.setLayoutParams(bgImageParams);
+        bgImage.setAdjustViewBounds(true);
+        bgImage.setMaxHeight(0);
+        bgImage.setScaleType(ImageView.ScaleType.FIT_XY);
+        bgImage.setImageDrawable(ctx.getResources().getDrawable(R.drawable.placeinfo_bg));
+
+        rl.addView(bgImage);
+        /////////////////////////// Added for background /////////////////////////////////
 
         TextView tvTitle = new TextView(ctx);
         RelativeLayout.LayoutParams tvTitleParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         tvTitleParams.addRule(RelativeLayout.CENTER_HORIZONTAL, RelativeLayout.TRUE);
         tvTitle.setText(pkName);
+        String textColor = "#FFFFFF";
+        tvTitle.setTextColor(Color.parseColor(textColor));
         tvTitle.setTypeface(null, Typeface.BOLD);
         tvTitle.setLayoutParams(tvTitleParams);
         tvTitle.setId(R.id.d_pks_title);
@@ -107,7 +132,7 @@ public class PieChartManager extends ActivityBase implements OnChartGestureListe
         mChart.setCenterText(generateCenterSpannableText("40"));
 
         mChart.setDrawHoleEnabled(true);
-        mChart.setHoleColor(Color.parseColor("#7c88d2"));
+        mChart.setHoleColor(Color.parseColor("#E6E6E6"));
 
         mChart.setTransparentCircleColor(Color.WHITE);
         mChart.setTransparentCircleAlpha(110);
@@ -173,10 +198,20 @@ public class PieChartManager extends ActivityBase implements OnChartGestureListe
 
         // add a lot of colors
 
-        ArrayList<Integer> colors = new ArrayList<Integer>();
+        // add curstom color
+        final int[] pieColors = {
+                Color.rgb(9,127,218),
+                Color.rgb(255,168,32)
+        };
 
+        ArrayList<Integer> colors = new ArrayList<Integer>();
+        /* ORIGINAL
         for (int c : ColorTemplate.COLORFUL_COLORS)
             colors.add(c);
+        */
+        for (int color : pieColors) {
+            colors.add(color);
+        }
 
         dataSet.setColors(colors);
 

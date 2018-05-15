@@ -46,7 +46,14 @@ public class CustomInfoWindowGoogleMap implements GoogleMap.InfoWindowAdapter {
         TextView airO32 = view.findViewById(R.id.air_o32);
 
         TextView realTitle = view.findViewById(R.id.real_title);
-        TextView realData = view.findViewById(R.id.real_data);
+        TextView realGnrlTitle = view.findViewById(R.id.real_gnrl_title);
+        TextView realGnrlData = view.findViewById(R.id.real_gnrl_data);
+        TextView realHndcTitle = view.findViewById(R.id.real_hndc_title);
+        TextView realHndcData = view.findViewById(R.id.real_hndc_data);
+        TextView realWmonTitle = view.findViewById(R.id.real_wmon_title);
+        TextView realWmonData = view.findViewById(R.id.real_wmon_data);
+        TextView realLgvhTitle = view.findViewById(R.id.real_lgvh_title);
+        TextView realLgvhData = view.findViewById(R.id.real_lgvh_data);
 
         TextView festList1 = view.findViewById(R.id.festList1);
         TextView festList2 = view.findViewById(R.id.festList2);
@@ -69,7 +76,15 @@ public class CustomInfoWindowGoogleMap implements GoogleMap.InfoWindowAdapter {
         airO32.setText(infoWindowData.getAirO32());
 
         realTitle.setText(infoWindowData.getRealTitle());
-        realData.setText(infoWindowData.getRealData());
+
+        realGnrlTitle.setText(infoWindowData.getRealGnrlTitle());
+        realGnrlData.setText(infoWindowData.getRealGnrlData());
+        realHndcTitle.setText(infoWindowData.getRealHndcTitle());
+        realHndcData.setText(infoWindowData.getRealHndcData());
+        realWmonTitle.setText(infoWindowData.getRealWmonTitle());
+        realWmonData.setText(infoWindowData.getRealWmonData());
+        realLgvhTitle.setText(infoWindowData.getRealLgvhTitle());
+        realLgvhData.setText(infoWindowData.getRealLgvhData());
 
         festList1.setText(infoWindowData.getFestList1());
         festList2.setText(infoWindowData.getFestList2());

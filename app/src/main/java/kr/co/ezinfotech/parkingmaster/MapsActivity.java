@@ -28,7 +28,7 @@ import java.util.List;
 public class MapsActivity
         extends FragmentActivity
         implements GoogleMap.OnMarkerClickListener,
-                     InfoWindowManager.WindowShowListener {
+        InfoWindowManager.WindowShowListener {
 
     private GoogleMap mMap;
 
@@ -63,6 +63,10 @@ public class MapsActivity
         infoWindowManager = mapInfoWindowFragment.infoWindowManager();
         infoWindowManager.setHideOnFling(true);
 
+        // For infoWindow background image
+        final InfoWindowManager.ContainerSpecification cs = new InfoWindowManager.ContainerSpecification(getResources().getDrawable(R.drawable.popup_bg));
+        infoWindowManager.setContainerSpec(cs);
+
         mapInfoWindowFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
@@ -83,6 +87,7 @@ public class MapsActivity
                 final int offsetY = (int) getResources().getDimension(R.dimen.marker_offset_y);
 
                 final InfoWindow.MarkerSpecification markerSpec = new InfoWindow.MarkerSpecification(offsetX, offsetY);
+                markerSpec.setCenterByX(false);
 
                 formWindows = new InfoWindow[searchedPZData.size()];
                 //////////////////////////////SET DATA////////////////////////////////////////////////////
@@ -110,10 +115,17 @@ public class MapsActivity
                     for(int j = 0; j < searchedPisData.size(); j++) {
                         if(searchedPisData.get(j).addr.equals(searchedPZData.get(i).name)) {
                             info.setRealTitle("실시간 주차잔여대수");
-                            info.setRealData("일반:" + searchedPisData.get(j).gnrlNum + " 장애:" + searchedPisData.get(j).hndcNum + " 여성:" + searchedPisData.get(j).wmonNum + " 경차:" + searchedPisData.get(j).lgvhNum);
+                            info.setRealGnrlTitle("일반:");
+                            info.setRealGnrlData(String.valueOf(searchedPisData.get(j).gnrlNum));
+                            info.setRealHndcTitle("장애:");
+                            info.setRealHndcData(String.valueOf(searchedPisData.get(j).hndcNum));
+                            info.setRealWmonTitle("여성:");
+                            info.setRealWmonData(String.valueOf(searchedPisData.get(j).wmonNum));
+                            info.setRealLgvhTitle("경차:");
+                            info.setRealLgvhData(String.valueOf(searchedPisData.get(j).lgvhNum));
                         } else {
-                            info.setRealTitle("실시간 주차잔여대수");
-                            info.setRealData("실시간 정보 준비 중입니다.");
+                            info.setRealTitle("실시간 정보 준비 중입니다.");
+                            // info.setRealData("실시간 정보 준비 중입니다.");
                         }
                     }
                     ////////////////////////// Real data /////////////////////////////
@@ -169,9 +181,7 @@ public class MapsActivity
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        InfoWindow infoWindow = formWindows[0];
-
-        infoWindow = formWindows[Integer.parseInt(marker.getSnippet())];
+        InfoWindow infoWindow = formWindows[Integer.parseInt(marker.getSnippet())];
 
         if (infoWindow != null) {
             infoWindowManager.toggle(infoWindow, true);
@@ -224,9 +234,9 @@ public class MapsActivity
         return resultStr;
     }
 
-    private int selectWithNo(int noVal) {
+    private int selectWithNo(String noVal) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String sqlSelect = FavoritesDBCtrct.SQL_SELECT_WITH_NO + noVal;
+        String sqlSelect = FavoritesDBCtrct.SQL_SELECT_WITH_NO + noVal + "'";
         Cursor cursor = db.rawQuery(sqlSelect, null);
         cursor.moveToFirst();
         return cursor.getCount();

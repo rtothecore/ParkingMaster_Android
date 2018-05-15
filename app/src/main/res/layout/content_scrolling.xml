@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="kr.co.ezinfotech.parkingmaster.ScrollingActivity"
+    android:background="#64BEF7"
     tools:showIn="@layout/activity_scrolling">
 
     <LinearLayout
@@ -21,7 +22,7 @@
 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
+                android:layout_height="180dp"
                 android:layout_weight="1"
                 android:orientation="horizontal">
 
@@ -29,14 +30,25 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_margin="5dp"
-                    android:background="#da532c"
+                    android:background="#64BEF7"
                     android:padding="5dp">
+
+                    <ImageView
+                        android:id="@+id/WeatherBg"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:adjustViewBounds="true"
+                        android:maxHeight="0dp"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/weatherinfo_bg" />
 
                     <TextView
                         android:id="@+id/wt_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
                         android:text="날씨정보 : --"
+                        android:textColor="#ffffff"
                         android:textStyle="bold" />
 
                     <TextView
@@ -44,13 +56,19 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/wt_title"
-                        android:text="----" />
+                        android:layout_marginTop="10dp"
+                        android:layout_marginLeft="10dp"
+                        android:text="----"
+                        android:textColor="#097FDA"
+                        android:textSize="22dp"
+                        android:textStyle="bold" />
 
                     <ImageView
                         android:id="@+id/wt_pic"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
                         android:layout_below="@id/wt_loc"
+                        android:layout_marginLeft="10dp"
                         app:srcCompat="@mipmap/ic_launcher" />
 
                     <TextView
@@ -59,21 +77,26 @@
                         android:layout_height="wrap_content"
                         android:layout_below="@id/wt_loc"
                         android:layout_toRightOf="@id/wt_pic"
-                        android:text="--℃" />
+                        android:text="--℃"
+                        android:textColor="#097FDA"
+                        android:textSize="22dp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/wt_ac"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/wt_pic"
-                        android:text="----" />
+                        android:layout_marginLeft="10dp"
+                        android:text="----"
+                        android:textColor="#097FDA" />
                 </RelativeLayout>
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
+                android:layout_height="180dp"
                 android:layout_weight="1"
                 android:orientation="horizontal">
 
@@ -81,43 +104,66 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_margin="5dp"
-                    android:background="#d2cb3e"
+                    android:background="#64BEF7"
                     android:padding="5dp">
+
+                    <ImageView
+                        android:id="@+id/AirBg"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:adjustViewBounds="true"
+                        android:maxHeight="0dp"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/airinfo_bg" />
 
                     <TextView
                         android:id="@+id/air_title"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="대기정보"
-                        android:textStyle="bold" />
+                        android:textColor="#ffffff"
+                        android:textStyle="bold"
+                        android:gravity="center" />
 
                     <TextView
                         android:id="@+id/air_loc"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/air_title"
-                        android:text="---" />
+                        android:text="---"
+                        android:textColor="#097FDA"
+                        android:textStyle="bold"
+                        android:textSize="22dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginTop="10dp" />
 
                     <TextView
                         android:id="@+id/air_pm10"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/air_loc"
-                        android:text="미세먼지 : --㎍/㎥" />
+                        android:text="미세먼지 : --㎍/㎥"
+                        android:textColor="#097FDA"
+                        android:layout_marginLeft="40dp"
+                        android:layout_marginTop="20dp" />
 
                     <TextView
                         android:id="@+id/air_pm25"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/air_pm10"
-                        android:text="초미세먼지 : --㎍/㎥" />
+                        android:text="초미세먼지 : --㎍/㎥"
+                        android:textColor="#097FDA"
+                        android:layout_marginLeft="40dp" />
 
                     <TextView
                         android:id="@+id/air_o3"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/air_pm25"
-                        android:text="오존지수 : ----ppm" />
+                        android:text="오존지수 : ----ppm"
+                        android:textColor="#097FDA"
+                        android:layout_marginLeft="40dp" />
 
                 </RelativeLayout>
             </LinearLayout>
@@ -149,7 +195,16 @@
                 android:layout_height="match_parent"
                 android:layout_margin="5dp"
                 android:padding="5dp"
-                android:background="#ce7ca2">
+                android:background="#64BEF7">
+
+                <ImageView
+                    android:id="@+id/barBg"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:adjustViewBounds="true"
+                    android:maxHeight="0dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/placeinfo_bg" />
 
                 <TextView
                     android:id="@+id/tpk_ratio_title"
@@ -157,7 +212,8 @@
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
                     android:text="전체주차점유율"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:textColor="#ffffff" />
 
                 <com.github.mikephil.charting.charts.BarChart
                     android:id="@+id/st_bar_chart1"

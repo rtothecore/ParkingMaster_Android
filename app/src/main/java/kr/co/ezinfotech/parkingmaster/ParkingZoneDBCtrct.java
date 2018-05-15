@@ -29,10 +29,11 @@ public class ParkingZoneDBCtrct {
     public static final String COL_ADDTERMTIME = "ADDTERMTIME";
     public static final String COL_ADDTERMFEE = "ADDTERMFEE";
     public static final String COL_REMARKS = "REMARKS";
+    public static final String COL_DATADATE = "DATADATE";
 
     public static final String SQL_CREATE_TBL = "CREATE TABLE IF NOT EXISTS " + TBL_PARKING_ZONE + " " +
             "(" +
-                COL_NO +            " INTEGER PRIMARY KEY AUTOINCREMENT" + ", " +
+                COL_NO +            " TEXT PRIMARY KEY" + ", " +
                 COL_NAME +          " TEXT"                                   + ", " +
                 COL_ADDR +          " TEXT"                                   + ", " +
                 COL_TEL +           " TEXT"                                   + ", " +
@@ -51,7 +52,8 @@ public class ParkingZoneDBCtrct {
                 COL_BASEFEE +        " TEXT"                                   + ", " +
                 COL_ADDTERMTIME +        " TEXT"                                   + ", " +
                 COL_ADDTERMFEE +        " TEXT"                                   + ", " +
-                COL_REMARKS +        " TEXT"                                   +
+                COL_REMARKS +        " TEXT"                                   + ", " +
+                COL_DATADATE +          " TEXT"                                  +
             ")";
 
     public static final String SQL_DROP_TBL = "DROP TABLE IF EXISTS " + TBL_PARKING_ZONE;
@@ -66,13 +68,17 @@ public class ParkingZoneDBCtrct {
 
     public static final String SQL_SELECT_WITH_NO = "SELECT " + COL_NO + ", " + COL_NAME + ", " + COL_ADDR + ", " + COL_TEL + ", " + COL_LAT + ", " + COL_LNG + ", " + COL_TOTALP + ", " +
                                                                    COL_OPINFO + ", " + COL_WOPSTART + ", " + COL_WOPEND + ", " + COL_SOPSTART + ", " + COL_SOPEND + ", " + COL_HOPSTART + ", " + COL_HOPEND +
-                                                                   ", " + COL_FEEINFO + ", " + COL_BASETIME + ", " + COL_BASEFEE + ", " + COL_ADDTERMTIME + ", " + COL_ADDTERMFEE + ", " + COL_REMARKS +
-                                                                   " FROM " + TBL_PARKING_ZONE + " WHERE " + COL_NO + "=";
+                                                                   ", " + COL_FEEINFO + ", " + COL_BASETIME + ", " + COL_BASEFEE + ", " + COL_ADDTERMTIME + ", " + COL_ADDTERMFEE + ", " + COL_REMARKS + ", " + COL_DATADATE +
+                                                                   " FROM " + TBL_PARKING_ZONE + " WHERE " + COL_NO + "='";
+
+    public static final String SQL_SELECT_COLUMN = "SELECT * FROM " + TBL_PARKING_ZONE + " LIMIT 0";
+
+    public static final String SQL_SELECT_WITH_DATADATE = "SELECT * FROM " + TBL_PARKING_ZONE + " WHERE " + COL_DATADATE + "='";
 
     public static final String SQL_INSERT = "INSERT OR REPLACE INTO " + TBL_PARKING_ZONE + " " +
-            "(" + COL_NAME + ", " + COL_ADDR + ", " + COL_TEL + ", " + COL_LAT + ", " + COL_LNG + ", " + COL_TOTALP + ", " + COL_OPINFO + ", " +
+            "(" + COL_NO + ", " + COL_NAME + ", " + COL_ADDR + ", " + COL_TEL + ", " + COL_LAT + ", " + COL_LNG + ", " + COL_TOTALP + ", " + COL_OPINFO + ", " +
                   COL_WOPSTART + ", " + COL_WOPEND + ", " + COL_SOPSTART + ", " + COL_SOPEND + ", " + COL_HOPSTART + ", " + COL_HOPEND + ", " + COL_FEEINFO + ", " +
-                  COL_BASETIME + ", " + COL_BASEFEE + ", " + COL_ADDTERMTIME + ", " + COL_ADDTERMFEE + ", " + COL_REMARKS +
+                  COL_BASETIME + ", " + COL_BASEFEE + ", " + COL_ADDTERMTIME + ", " + COL_ADDTERMFEE + ", " + COL_REMARKS + ", " + COL_DATADATE +
             ") VALUES ";
 
     public static final String SQL_DELETE = "DELETE FROM " + TBL_PARKING_ZONE;

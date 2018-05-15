@@ -2,6 +2,7 @@ package kr.co.ezinfotech.parkingmaster;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.Legend;
@@ -35,6 +36,7 @@ public class BarChartManager {
 
     public void clearLabelStr() {
         labelStrList.clear();
+        Log.i("clearLabelStr", "labelStrList size :" + labelStrList.size());
     }
 
     public void draw() {
@@ -117,10 +119,19 @@ public class BarChartManager {
     private int[] getColors() {
         int stacksize = 2;
         // have as many colors as stack-values per entry
-        int[] colors = new int[stacksize];
+        // int[] colors = new int[stacksize];
+
+        // add curstom color
+        final int[] pieColors = {
+                Color.rgb(9,127,218),
+                Color.rgb(255,168,32)
+        };
+
+        /* ORIGINAL
         for (int i = 0; i < colors.length; i++) {
             colors[i] = ColorTemplate.COLORFUL_COLORS[i];
         }
-        return colors;
+        */
+        return pieColors;
     }
 }

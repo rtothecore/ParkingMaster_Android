@@ -37,7 +37,7 @@ public class DetailActivity extends ActivityBase {
         setContentView(R.layout.activity_detail);
 
         Intent intent = getIntent();
-        int pzNo = intent.getIntExtra("pzNo", 0);
+        String pzNo = intent.getStringExtra("pzNo");
 
         dbHelper = new ParkingMasterDBHelper(this);
         setPZData(selectWithNo(pzNo));
@@ -47,19 +47,19 @@ public class DetailActivity extends ActivityBase {
 
     private void setPZData(PZData pzdataVal) {
         ((TextView)findViewById(R.id.parkDetailTitle)).setText(pzdataVal.name);
-        ((TextView)findViewById(R.id.parkDetailFee)).setText(pzdataVal.feeInfo + " : 기본 " + pzdataVal.baseTime + "분 " + pzdataVal.baseFee +"원, 초과 " + pzdataVal.addTermTime + "분 " + pzdataVal.addTermFee + "원");
+        ((TextView)findViewById(R.id.parkDetailFee)).setText(pzdataVal.feeInfo + " : 기본 " + pzdataVal.park_base.time + "분 " + pzdataVal.park_base.fee +"원, 초과 " + pzdataVal.add_term.time + "분 " + pzdataVal.add_term.fee + "원");
         ((TextView)findViewById(R.id.parkDetailTotal)).setText("주차면수 : " + pzdataVal.totalP + "대");
     }
 
-    private PZData selectWithNo(int noVal) {
+    private PZData selectWithNo(String noVal) {
         SQLiteDatabase db= dbHelper.getReadableDatabase();
-        String sqlSelect = ParkingZoneDBCtrct.SQL_SELECT_WITH_NO + noVal;
+        String sqlSelect = ParkingZoneDBCtrct.SQL_SELECT_WITH_NO + noVal + "'";
         Cursor cursor = db.rawQuery(sqlSelect, null);
 
         PZData tempPZData = new PZData();
 
         if(cursor.moveToFirst()) {
-            tempPZData.no = cursor.getInt(0);
+            tempPZData.no = cursor.getString(0);
             tempPZData.name = cursor.getString(1);
             tempPZData.addr = cursor.getString(2);
             tempPZData.tel = cursor.getString(3);
@@ -68,17 +68,22 @@ public class DetailActivity extends ActivityBase {
             tempPZData.loc.setLongitude(Double.parseDouble(cursor.getString(5)));
             tempPZData.totalP = cursor.getString(6);
             tempPZData.opDate = cursor.getString(7);
-            tempPZData.wOpStart = cursor.getString(8);
-            tempPZData.wOpEnd = cursor.getString(9);
-            tempPZData.sOpStart = cursor.getString(10);
-            tempPZData.sOpEnd = cursor.getString(11);
-            tempPZData.hOpStart = cursor.getString(12);
-            tempPZData.hOpEnd = cursor.getString(13);
+            tempPZData.w_op = new PZTermData();
+            tempPZData.w_op.start_date = cursor.getString(8);
+            tempPZData.w_op.end_date = cursor.getString(9);
+            tempPZData.s_op = new PZTermData();
+            tempPZData.s_op.start_date = cursor.getString(10);
+            tempPZData.s_op.end_date = cursor.getString(11);
+            tempPZData.h_op = new PZTermData();
+            tempPZData.h_op.start_date = cursor.getString(12);
+            tempPZData.h_op.end_date = cursor.getString(13);
             tempPZData.feeInfo = cursor.getString(14);
-            tempPZData.baseTime = cursor.getString(15);
-            tempPZData.baseFee = cursor.getString(16);
-            tempPZData.addTermTime = cursor.getString(17);
-            tempPZData.addTermFee = cursor.getString(18);
+            tempPZData.park_base = new PZTFData();
+            tempPZData.park_base.time = cursor.getString(15);
+            tempPZData.park_base.fee = cursor.getString(16);
+            tempPZData.add_term = new PZTFData();
+            tempPZData.add_term.time = cursor.getString(17);
+            tempPZData.add_term.fee = cursor.getString(18);
             tempPZData.remarks = cursor.getString(19);
         }
         return tempPZData;
@@ -210,8 +215,10 @@ public class DetailActivity extends ActivityBase {
             // set the line to be drawn like this "- - - - - -"
             set1.enableDashedLine(10f, 5f, 0f);
             set1.enableDashedHighlightLine(10f, 5f, 0f);
-            set1.setColor(Color.BLACK);
-            set1.setCircleColor(Color.BLACK);
+            // set1.setColor(Color.BLACK);
+            set1.setColor(Color.rgb(255,169,34));
+            // set1.setCircleColor(Color.BLACK);
+            set1.setCircleColor(Color.rgb(255,169,34));
             set1.setLineWidth(1f);
             set1.setCircleRadius(3f);
             set1.setDrawCircleHole(false);

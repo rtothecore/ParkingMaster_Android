@@ -53,7 +53,15 @@ public class FormFragment extends Fragment {
         TextView airO32 = view.findViewById(R.id.air_o32);
 
         TextView realTitle = view.findViewById(R.id.real_title);
-        TextView realData = view.findViewById(R.id.real_data);
+
+        TextView realGnrlTitle = view.findViewById(R.id.real_gnrl_title);
+        TextView realGnrlData = view.findViewById(R.id.real_gnrl_data);
+        TextView realHndcTitle = view.findViewById(R.id.real_hndc_title);
+        TextView realHndcData = view.findViewById(R.id.real_hndc_data);
+        TextView realWmonTitle = view.findViewById(R.id.real_wmon_title);
+        TextView realWmonData = view.findViewById(R.id.real_wmon_data);
+        TextView realLgvhTitle = view.findViewById(R.id.real_lgvh_title);
+        TextView realLgvhData = view.findViewById(R.id.real_lgvh_data);
 
         TextView festList1 = view.findViewById(R.id.festList1);
         TextView festList2 = view.findViewById(R.id.festList2);
@@ -76,13 +84,21 @@ public class FormFragment extends Fragment {
         airO32.setText(infoWData.getAirO32());
 
         realTitle.setText(infoWData.getRealTitle());
-        realData.setText(infoWData.getRealData());
+
+        realGnrlTitle.setText(infoWData.getRealGnrlTitle());
+        realGnrlData.setText(infoWData.getRealGnrlData());
+        realHndcTitle.setText(infoWData.getRealHndcTitle());
+        realHndcData.setText(infoWData.getRealHndcData());
+        realWmonTitle.setText(infoWData.getRealWmonTitle());
+        realWmonData.setText(infoWData.getRealWmonData());
+        realLgvhTitle.setText(infoWData.getRealLgvhTitle());
+        realLgvhData.setText(infoWData.getRealLgvhData());
 
         festList1.setText(infoWData.getFestList1());
         festList2.setText(infoWData.getFestList2());
 
-        btnMeasure.setText(infoWData.getBtnMeasure());
-        btnFavorites.setText(infoWData.getBtnFavorites());
+        //btnMeasure.setText(infoWData.getBtnMeasure());
+        //btnFavorites.setText(infoWData.getBtnFavorites());
         //////////////////////////////////////////////////////////////////////////////////////////////////
 
         return view;
@@ -127,13 +143,13 @@ public class FormFragment extends Fragment {
         view.findViewById(R.id.btn_favorites).setOnClickListener(onFvClickListener);
     }
 
-    private void deleteFromFVTable(int noVal) {
+    private void deleteFromFVTable(String noVal) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String sqlDelete = FavoritesDBCtrct.SQL_DELETE_WITH_NO + noVal;
+        String sqlDelete = FavoritesDBCtrct.SQL_DELETE_WITH_NO + noVal + "'";
         db.execSQL(sqlDelete);
     }
 
-    private void addedToFVTable(int noVal) {
+    private void addedToFVTable(String noVal) {
         SQLiteDatabase db= dbHelper.getWritableDatabase();
         String sqlInsert = FavoritesDBCtrct.SQL_INSERT +
                 " (" +

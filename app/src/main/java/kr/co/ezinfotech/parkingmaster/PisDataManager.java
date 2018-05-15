@@ -56,7 +56,7 @@ public class PisDataManager extends Activity {
     LinearLayout ll = null;
     BarChart bc = null;
 
-    int selectedPZNo = 0;
+    String selectedPZNo = "";
 
     public void PisDataManager() {
     }
@@ -69,7 +69,7 @@ public class PisDataManager extends Activity {
         bc = bcVal;
     }
 
-    public void setClickedPZNo(int pzNoVal) {
+    public void setClickedPZNo(String pzNoVal) {
         selectedPZNo = pzNoVal;
     }
 
@@ -98,6 +98,7 @@ public class PisDataManager extends Activity {
         // http://nocomet.tistory.com/10
         new Thread() {
             public void run() {
+                //android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_LOWEST);
                 getPisData();
             }
         }.start();
@@ -278,14 +279,14 @@ public class PisDataManager extends Activity {
                 float distance = myLoc.distanceTo(pisData.get(i).loc);
                 if(RADIUS_DISTANCE >= distance) {
                     // 2-3. 2-2번에서 검색한 내용 중 1번째 주차장을 테이블에 INSERT
-                    int selectedNo = selectNoWithName(pisData.get(i).addr);
+                    String selectedNo = selectNoWithName(pisData.get(i).addr);
                     insertFVTable(selectedNo);
                     Log.i("initFavoritesTable-0", "insertFVTable(" + selectedNo + ")");
                 }
             }
         }
 
-        // FAVORITE 테이블에 추가된 데이터셋이 없을 경우 공공데이터서버로부터 받은 4개의 주차장정보를 INSERT
+        // FAVORITE 테이블에 추가된 데이터셋이 없을 경우 공공데이터서버로부터 받은 5개의 주차장정보를 INSERT
         cursor = db.rawQuery(FavoritesDBCtrct.SQL_SELECT, null);
         cursor.moveToFirst();
         if(0 == cursor.getCount()) {
@@ -310,15 +311,15 @@ public class PisDataManager extends Activity {
         return tempPD;
     }
 
-    private PZData selectWithNo(int noVal) {
+    private PZData selectWithNo(String noVal) {
         SQLiteDatabase db= dbHelper.getReadableDatabase();
-        String sqlSelect = ParkingZoneDBCtrct.SQL_SELECT_WITH_NO + noVal;
+        String sqlSelect = ParkingZoneDBCtrct.SQL_SELECT_WITH_NO + noVal + "'";
         Cursor cursor = db.rawQuery(sqlSelect, null);
 
         PZData tempPZData = new PZData();
 
         if(cursor.moveToFirst()) {
-            tempPZData.no = cursor.getInt(0);
+            tempPZData.no = cursor.getString(0);
             tempPZData.name = cursor.getString(1);
             tempPZData.addr = cursor.getString(2);
             tempPZData.tel = cursor.getString(3);
@@ -327,18 +328,24 @@ public class PisDataManager extends Activity {
             tempPZData.loc.setLongitude(Double.parseDouble(cursor.getString(5)));
             tempPZData.totalP = cursor.getString(6);
             tempPZData.opDate = cursor.getString(7);
-            tempPZData.wOpStart = cursor.getString(8);
-            tempPZData.wOpEnd = cursor.getString(9);
-            tempPZData.sOpStart = cursor.getString(10);
-            tempPZData.sOpEnd = cursor.getString(11);
-            tempPZData.hOpStart = cursor.getString(12);
-            tempPZData.hOpEnd = cursor.getString(13);
+            tempPZData.w_op = new PZTermData();
+            tempPZData.w_op.start_date = cursor.getString(8);
+            tempPZData.w_op.end_date = cursor.getString(9);
+            tempPZData.s_op = new PZTermData();
+            tempPZData.s_op.start_date = cursor.getString(10);
+            tempPZData.s_op.end_date = cursor.getString(11);
+            tempPZData.h_op = new PZTermData();
+            tempPZData.h_op.start_date = cursor.getString(12);
+            tempPZData.h_op.end_date = cursor.getString(13);
             tempPZData.feeInfo = cursor.getString(14);
-            tempPZData.baseTime = cursor.getString(15);
-            tempPZData.baseFee = cursor.getString(16);
-            tempPZData.addTermTime = cursor.getString(17);
-            tempPZData.addTermFee = cursor.getString(18);
+            tempPZData.park_base = new PZTFData();
+            tempPZData.park_base.time = cursor.getString(15);
+            tempPZData.park_base.fee = cursor.getString(16);
+            tempPZData.add_term = new PZTFData();
+            tempPZData.add_term.time = cursor.getString(17);
+            tempPZData.add_term.fee = cursor.getString(18);
             tempPZData.remarks = cursor.getString(19);
+            tempPZData.dataDate = cursor.getString(20);
         }
         return tempPZData;
     }
@@ -353,7 +360,7 @@ public class PisDataManager extends Activity {
             for(int i = 0; i < cursor.getCount(); i++) {
                 //Log.i("selectLatLng", "LAT:" + cursor.getString(0) + " LNG:" + cursor.getString(1) );
                 tempPZData[i] = new PZData();
-                tempPZData[i].no = cursor.getInt(0);
+                tempPZData[i].no = cursor.getString(0);
                 tempPZData[i].loc = new Location("");
                 tempPZData[i].loc.setLatitude(Double.parseDouble(cursor.getString(1)));
                 tempPZData[i].loc.setLongitude(Double.parseDouble(cursor.getString(2)));
@@ -373,7 +380,7 @@ public class PisDataManager extends Activity {
 
         for(int i = 0; i < cursor.getCount(); i++) {
             Log.i("showFavorites-0", "cursor.genInt(0):" + cursor.getInt(0));
-            final PZData tempPZD = selectWithNo(cursor.getInt(0));
+            final PZData tempPZD = selectWithNo(cursor.getString(0));
             final PisDataManager pdmThis = this;
             final int iVal = i;
 
@@ -404,36 +411,42 @@ public class PisDataManager extends Activity {
             bcm.setLabelStr(tempPZD.name);
             cursor.moveToNext();
         }
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        bcm.draw();
-                    }
-                });
-            }
-        }).start();
+
+        if( 0 < cursor.getCount()) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            bcm.draw();
+                        }
+                    });
+                }
+            }).start();
+        }
     }
 
-    private void insertFVTable(int no) {
+    private void insertFVTable(String noVal) {
         SQLiteDatabase db= dbHelper.getWritableDatabase();
 
         String sqlInsert = FavoritesDBCtrct.SQL_INSERT +
                 " (" +
-                "'" + no +
+                "'" + noVal +
                 "')";
         db.execSQL(sqlInsert);
     }
 
-    private int selectNoWithName(String name) {
+    private String selectNoWithName(String name) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String sqlSelect = ParkingZoneDBCtrct.SQL_SELECT_NO_WITH_NAME + name + "'";
+        Log.i("selectNoWithName-0", "SQL:" + sqlSelect);
+
         Cursor cursor = db.rawQuery(sqlSelect, null);
-        int result = 0;
+        String result = "";
 
         if(cursor.moveToFirst()) {
-            result = cursor.getInt(0);
+            result = cursor.getString(0);
+            Log.i("selectNoWithName", "selectedNo" + cursor.getInt(0));
         }
         return result;
     }
@@ -441,6 +454,8 @@ public class PisDataManager extends Activity {
     private Location selectLatNLngWithName(String name) {
 
         Location tempLoc = new Location("");
+        tempLoc.setLatitude(0);
+        tempLoc.setLongitude(0);
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         String sqlSelect = ParkingZoneDBCtrct.SQL_SELECT_LAT_LNG_WITH_NAME + name + "'";
@@ -450,9 +465,9 @@ public class PisDataManager extends Activity {
             tempLoc.setLatitude(Double.parseDouble(cursor.getString(0)));
             tempLoc.setLongitude(Double.parseDouble(cursor.getString(1)));
             Log.i("selectLatNLngWithName", "LAT: " + tempLoc.getLatitude() + " LNG: " + tempLoc.getLongitude());
-            return tempLoc;
         }
-        return null;
+
+        return tempLoc;
     }
 
     // 실제주소 => 위,경도 변환 - http://bitsoul.tistory.com/135

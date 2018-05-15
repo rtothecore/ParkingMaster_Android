@@ -11,24 +11,25 @@ import android.os.Parcelable;
 public class PZData implements Parcelable {
 
     Location loc;       // 위,경도
-    int no;
+    String no;
     String name;
     String addr;
     String tel;
     String totalP;
     String opDate;
-    String wOpStart;
-    String wOpEnd;
-    String sOpStart;
-    String sOpEnd;
-    String hOpStart;
-    String hOpEnd;
+
+    PZTermData w_op;
+    PZTermData s_op;
+    PZTermData h_op;
+
     String feeInfo;
-    String baseTime;
-    String baseFee;
-    String addTermTime;
-    String addTermFee;
+
+    PZTFData park_base;
+    PZTFData add_term;
+    PZTFData one_day_park;
+
     String remarks;
+    String dataDate;
 
     public PZData() {
     }
@@ -41,46 +42,65 @@ public class PZData implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(this.loc, flags);
-        dest.writeInt(this.no);
+        dest.writeString(this.no);
         dest.writeString(this.name);
         dest.writeString(this.addr);
         dest.writeString(this.tel);
         dest.writeString(this.totalP);
         dest.writeString(this.opDate);
-        dest.writeString(this.wOpStart);
-        dest.writeString(this.wOpEnd);
-        dest.writeString(this.sOpStart);
-        dest.writeString(this.sOpEnd);
-        dest.writeString(this.hOpStart);
-        dest.writeString(this.hOpEnd);
+
+        dest.writeString(this.w_op.start_date);
+        dest.writeString(this.w_op.end_date);
+        dest.writeString(this.s_op.start_date);
+        dest.writeString(this.s_op.end_date);
+        dest.writeString(this.h_op.start_date);
+        dest.writeString(this.h_op.end_date);
+
         dest.writeString(this.feeInfo);
-        dest.writeString(this.baseTime);
-        dest.writeString(this.baseFee);
-        dest.writeString(this.addTermTime);
-        dest.writeString(this.addTermFee);
+
+        dest.writeString(this.park_base.time);
+        dest.writeString(this.park_base.fee);
+        dest.writeString(this.add_term.time);
+        dest.writeString(this.add_term.fee);
+//        dest.writeString(this.one_day_park.time);
+//        dest.writeString(this.one_day_park.fee);
+
         dest.writeString(this.remarks);
+        dest.writeString(this.dataDate);
     }
 
     protected PZData(Parcel in) {
         this.loc = in.readParcelable(Location.class.getClassLoader());
-        this.no = in.readInt();
+        this.no = in.readString();
         this.name = in.readString();
         this.addr = in.readString();
         this.tel = in.readString();
         this.totalP = in.readString();
         this.opDate = in.readString();
-        this.wOpStart = in.readString();
-        this.wOpEnd = in.readString();
-        this.sOpStart = in.readString();
-        this.sOpEnd = in.readString();
-        this.hOpStart = in.readString();
-        this.hOpEnd = in.readString();
+
+        this.w_op = new PZTermData();
+        this.w_op.start_date = in.readString();
+        this.w_op.end_date = in.readString();
+        this.s_op = new PZTermData();
+        this.s_op.start_date = in.readString();
+        this.s_op.start_date = in.readString();
+        this.h_op = new PZTermData();
+        this.h_op.start_date = in.readString();
+        this.h_op.start_date = in.readString();
+
         this.feeInfo = in.readString();
-        this.baseTime = in.readString();
-        this.baseFee = in.readString();
-        this.addTermTime = in.readString();
-        this.addTermFee = in.readString();
+
+        this.park_base = new PZTFData();
+        this.park_base.time = in.readString();
+        this.park_base.fee = in.readString();
+        this.add_term = new PZTFData();
+        this.add_term.time = in.readString();
+        this.add_term.fee = in.readString();
+//        this.one_day_park.time = in.readString();
+//        this.one_day_park.fee = in.readString();
+
         this.remarks = in.readString();
+        this.dataDate = in.readString();
     }
 
     public static final Parcelable.Creator<PZData> CREATOR = new Parcelable.Creator<PZData>() {

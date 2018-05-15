@@ -6,7 +6,7 @@ package kr.co.ezinfotech.parkingmaster;
  */
 
 public class InfoWindowData {
-    private int No;
+    private String No;
     private String pkName;
 
     private String wtTitle2;
@@ -22,7 +22,15 @@ public class InfoWindowData {
     private String airO32;
 
     private String realTitle;
-    private String realData;
+
+    private String realGnrlTitle;
+    private String realGnrlData;
+    private String realHndcTitle;
+    private String realHndcData;
+    private String realWmonTitle;
+    private String realWmonData;
+    private String realLgvhTitle;
+    private String realLgvhData;
 
     private String festList1;
     private String festList2;
@@ -30,11 +38,75 @@ public class InfoWindowData {
     private String btnMeasure;
     private String btnFavorites;
 
-    public int getNo() {
+    public String getRealGnrlTitle() {
+        return realGnrlTitle;
+    }
+
+    public void setRealGnrlTitle(String realGnrlTitle) {
+        this.realGnrlTitle = realGnrlTitle;
+    }
+
+    public String getRealGnrlData() {
+        return realGnrlData;
+    }
+
+    public void setRealGnrlData(String realGnrlData) {
+        this.realGnrlData = realGnrlData;
+    }
+
+    public String getRealHndcTitle() {
+        return realHndcTitle;
+    }
+
+    public void setRealHndcTitle(String realHndcTitle) {
+        this.realHndcTitle = realHndcTitle;
+    }
+
+    public String getRealHndcData() {
+        return realHndcData;
+    }
+
+    public void setRealHndcData(String realHndcData) {
+        this.realHndcData = realHndcData;
+    }
+
+    public String getRealWmonTitle() {
+        return realWmonTitle;
+    }
+
+    public void setRealWmonTitle(String realWmonTitle) {
+        this.realWmonTitle = realWmonTitle;
+    }
+
+    public String getRealWmonData() {
+        return realWmonData;
+    }
+
+    public void setRealWmonData(String realWmonData) {
+        this.realWmonData = realWmonData;
+    }
+
+    public String getRealLgvhTitle() {
+        return realLgvhTitle;
+    }
+
+    public void setRealLgvhTitle(String realLgvhTitle) {
+        this.realLgvhTitle = realLgvhTitle;
+    }
+
+    public String getRealLgvhData() {
+        return realLgvhData;
+    }
+
+    public void setRealLgvhData(String realLgvhData) {
+        this.realLgvhData = realLgvhData;
+    }
+
+    public String getNo() {
         return No;
     }
 
-    public void setNo(int no) {
+    public void setNo(String no) {
         No = no;
     }
 
@@ -132,14 +204,6 @@ public class InfoWindowData {
 
     public void setRealTitle(String realTitle) {
         this.realTitle = realTitle;
-    }
-
-    public String getRealData() {
-        return realData;
-    }
-
-    public void setRealData(String realData) {
-        this.realData = realData;
     }
 
     public String getFestList1() {
